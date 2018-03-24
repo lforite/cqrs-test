@@ -1,25 +1,25 @@
-package cqrs
+package cqrs.projection
+
+import cqrs.model._
 
 import scala.collection.mutable
 import scala.collection.mutable.Set
 
-object AccountProjection extends Subscriber {
-
+object AccountProjection extends Subscriber[BankAccount] {
   private val accountProjection = new mutable.HashMap[BankAccountId, BankAccount]()
   private val allWithdrewTransactions =
     new mutable.HashMap[BankAccountId, mutable.Set[MoneyWithdrewEvent]]()
       with mutable.MultiMap[BankAccountId, MoneyWithdrewEvent]
 
 
-  def consume(event: Event): Unit = {
+  override def consume(event: Event[BankAccount]): Unit = {
     projectAccount(event)
     projectWithdrewTransaction(event)
   }
 
-  private def projectAccount(event: Event): Unit = {
+  private def projectAccount(event: Event[BankAccount]): Unit = {
     event match {
-      case AccountCreatedEvent(id, amount) =>
-        accountProjection.put(id, BankAccount(id, amount))
+      case AccountCreatedEvent(id, amount) => accountProjection.put(id, BankAccount(id, amount))
       case MoneyDepositedEvent(id, amount) => accountProjection.get(id).foreach { acc =>
         accountProjection.put(id, acc.copy(balance = acc.balance + amount))
       }
@@ -30,9 +30,9 @@ object AccountProjection extends Subscriber {
     ()
   }
 
-  private def projectWithdrewTransaction(event: Event): Unit = {
+  private def projectWithdrewTransaction(event: Event[BankAccount]): Unit = {
     event match {
-      case e: MoneyWithdrewEvent => allWithdrewTransactions.addBinding(e.bankAccountId, e)
+      case e: MoneyWithdrewEvent => allWithdrewTransactions.addBinding(e.aggregateId, e)
       case _ => ()
     }
     ()
@@ -42,7 +42,7 @@ object AccountProjection extends Subscriber {
     accountProjection.get(bankAccountId)
   }
 
-  def getMoneyWithdrawingProject(bankAccountId: BankAccountId): Option[Set[MoneyWithdrewEvent]] = {
+  def getMoneyWithdrawingProjection(bankAccountId: BankAccountId): Option[Set[MoneyWithdrewEvent]] = {
     allWithdrewTransactions.get(bankAccountId)
   }
 

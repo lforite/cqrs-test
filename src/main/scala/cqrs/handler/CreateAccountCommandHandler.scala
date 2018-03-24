@@ -1,6 +1,9 @@
-package cqrs
+package cqrs.handler
 
 import java.util.UUID
+
+import cqrs.EventStore
+import cqrs.model.{AccountCreatedEvent, BankAccountId, CreateAccountCommand}
 
 object CreateAccountCommandHandler extends CommandHandler[CreateAccountCommand]{
   override def handle(command: CreateAccountCommand): Either[String, AccountCreatedEvent] = {

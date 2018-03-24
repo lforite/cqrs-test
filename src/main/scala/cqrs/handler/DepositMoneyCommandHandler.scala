@@ -1,4 +1,8 @@
-package cqrs
+package cqrs.handler
+
+import cqrs._
+import cqrs.model.{BankAccount, DepositMoneyCommand, MoneyDepositedEvent}
+import cqrs.repository.AccountRepository
 
 object DepositMoneyCommandHandler extends CommandHandler[DepositMoneyCommand] {
   def handle(deposit: DepositMoneyCommand): Either[String, MoneyDepositedEvent] = {

@@ -1,7 +1,11 @@
-package cqrs
+package cqrs.handler
+
+import cqrs.EventStore
+import cqrs.model.{BankAccount, MoneyWithdrewEvent, WithdrawMoneyCommand}
+import cqrs.repository.AccountRepository
 
 object WithdrawMoneyCommandHandler extends CommandHandler[WithdrawMoneyCommand] {
-  def handle(withdrawMoneyCommand: WithdrawMoneyCommand): Either[String, Event] = {
+  def handle(withdrawMoneyCommand: WithdrawMoneyCommand): Either[String, MoneyWithdrewEvent] = {
     val aggregate = AccountRepository.getAggregate(withdrawMoneyCommand.id)
 
     validate(withdrawMoneyCommand, aggregate) match {
