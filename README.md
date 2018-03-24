@@ -1,4 +1,4 @@
-# Project Title
+# CQRS Test
 
 A simple test to implement CQRS / ES mechanics around banking example.
 
